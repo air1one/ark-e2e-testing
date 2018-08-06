@@ -33,7 +33,7 @@ Here is the app structure :
 - **/lib** : App code
  - **/lib/config** : General configuration (currently only docker config).
  - **/tests/networks** : Networks configuration (genesis block, peers, ...). Each subfolder corresponds to a configured network.
- - **/tests/scenarii** : Scenarii configuration (actions and tests to execute on the network). Each subfolder corresponds to a scenario.
+ - **/tests/scenarios** : scenarios configuration (actions and tests to execute on the network). Each subfolder corresponds to a scenario.
  - **/dist** : Where the network is generated
 
 There are two command-line endpoints :
@@ -62,7 +62,7 @@ These scripts take care of docker configuring / building and launching the nodes
 
 #### Running the scenario
 
-`bin/e2e run-tests -n test1 -s scenario1` will inspect what you configured inside **/tests/scenarii/scenario1/config.js**. Here is an example :
+`bin/e2e run-tests -n test1 -s scenario1` will inspect what you configured inside **/tests/scenarios/scenario1/config.js**. Here is an example :
 
     'use strict'
     
@@ -78,7 +78,7 @@ These scripts take care of docker configuring / building and launching the nodes
 
  We are here defining some tests and actions to execute on specific blocks. The engine will pick this up and execute them when the block height matches.
 
-Let's have a look at the test **node/node.test.js** (inside */tests/scenarii/scenario1/tests/*):
+Let's have a look at the test **node/node.test.js** (inside */tests/scenarios/scenario1/tests/*):
 
     'use strict'
     
@@ -125,6 +125,6 @@ We could apply the same method to have end-to-end testing on related application
 
 ## Additional notes
 
-### Decoupling network configuration and scenarii
+### Decoupling network configuration and scenarios
 
 I started with the idea that the network configuration should be independent from the tests and actions (so that we could choose one network and play any scenario on it). But going through I think it makes more sense to have them linked because test results can depend on network configuration (for example minimumNetworkReach).

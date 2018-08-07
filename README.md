@@ -56,7 +56,7 @@ If we run the command, this is the structure we would get inside **/dist** :
 
 Now to launch the network we would only need to :
 
-    sudo chmod +x ./docker* && ./docker-init.sh && ./docker-start.sh
+    ./docker-init.sh && ./docker-start.sh
 
 These scripts take care of docker configuring / building and launching the nodes (with docker stack deploy).
 
@@ -108,7 +108,7 @@ We managed to automate end-to-end testing running a predefined scenario (actions
 Right now, it is as simple as :
 
     bin/e2e generate -n test1 -c 3
-    cd dist/test1 && sudo chmod +x ./docker* && ./docker-init.sh && ./docker-start.sh && cd ../..
+    cd dist/test1 && ./docker-init.sh && ./docker-start.sh && cd ../..
     bin/e2e run-tests -n test1 -s scenario1
 
 So we could integrate it in a Travis workflow.

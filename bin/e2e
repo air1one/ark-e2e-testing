@@ -12,11 +12,11 @@ app
   .action(async (options) => require('../lib/generate-files')(options))
 
 app
-.command('run-tests')
-.description('Run the tests')
-.option('-n, --network <network>', 'network to test', 'e2enet')
-.option('-s, --scenario <scenario>', 'scenario to test', 'scenario1')
-.action((options) =>  require('../lib/test-runner')(options))
+  .command('run-tests')
+  .description('Run the tests')
+  .option('-n, --network <network>', 'network to test', 'e2enet')
+  .option('-s, --scenario <scenario>', 'scenario to test', 'scenario1')
+  .action((options) =>  require('../lib/test-runner')(options))
 
 app
   .command('*')

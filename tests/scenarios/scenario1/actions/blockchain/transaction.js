@@ -40,5 +40,5 @@ module.exports = async (options) => {
       transactions: [transaction]
     })
 
-    return transaction
+    expect(true).toBe(false) // TODO do a real test
 }

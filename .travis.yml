@@ -17,6 +17,9 @@ script:
   - cd dist/test1 && ./docker-init.sh && ./docker-start.sh && cd ../..
   - bin/e2e run-tests -n test1 -s scenario1
 
+after_script:
+  - tail --lines=2000 test-results.log
+
 cache:
   directories:
     - node_modules

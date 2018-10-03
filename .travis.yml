@@ -20,6 +20,8 @@ script:
 after_script:
   - head --lines=100 dist/test1/node0/ark.log.*
   - tail --lines=1000 dist/test1/node0/ark.log.*
+  - head --lines=100 dist/test1/node0/output.log
+  - tail --lines=1000 dist/test1/node0/output.log
   - tail --lines=2000 test-results.log
 
 cache:

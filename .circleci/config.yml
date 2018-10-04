@@ -43,7 +43,9 @@ jobs:
             bin/e2e run-tests -n test1 -s scenario1
       - run:
           name: Output results
-          command: 'tail --lines 2000 dist/test1/node0/output.log'
+          command: |
+            tail --lines 2000 dist/test1/node0/output.log
+            tail --lines 2000 dist/test1/node0/errors.log
 
 workflows:
   version: 2

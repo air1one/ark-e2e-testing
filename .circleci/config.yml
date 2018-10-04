@@ -7,6 +7,9 @@ jobs:
     steps:
       - checkout
       - run:
+          name: Check nodejs version
+          command: 'node --version'
+      - run:
           name: Docker swarm init
           command: 'docker swarm init'
       - run:

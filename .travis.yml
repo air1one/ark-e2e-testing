@@ -18,10 +18,15 @@ script:
   - bin/e2e run-tests -n test1 -s scenario1
 
 after_script:
-  - head --lines=100 dist/test1/node0/ark.log.*
-  - tail --lines=1000 dist/test1/node0/ark.log.*
-  - head --lines=100 dist/test1/node0/output.log
-  - tail --lines=1000 dist/test1/node0/output.log
+  - tail --lines=2000 dist/test1/node0/ark.log.*
+  - tail --lines=2000 dist/test1/node0/output.log
+  - tail --lines=200 dist/test1/node0/errors.log
+  - tail --lines=2000 dist/test1/node1/ark.log.*
+  - tail --lines=2000 dist/test1/node1/output.log
+  - tail --lines=200 dist/test1/node1/errors.log
+  - tail --lines=2000 dist/test1/node2/ark.log.*
+  - tail --lines=2000 dist/test1/node2/output.log
+  - tail --lines=200 dist/test1/node2/errors.log
   - tail --lines=2000 test-results.log
 
 cache:

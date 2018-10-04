@@ -6,4 +6,6 @@ rm -rf packages/core/node_modules packages/core/package-lock.json 2>&1
 npm --quiet install lerna -g && npm --quiet install -g nodemon
 lerna bootstrap
 
+touch lerna.ok
+
 bash

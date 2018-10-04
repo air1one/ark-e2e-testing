@@ -7,12 +7,8 @@ jobs:
       - run:
           name: Install nvm
           command: |
-            curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.33.5/install.sh | bash
             source ~/.bashrc
             nvm install 10
-            export NVM_DIR="$HOME/.nvm"
-            [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
-            [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
       - run:
           name: Check nodejs version
           command: 'node --version'

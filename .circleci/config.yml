@@ -1,0 +1,36 @@
+version: 2
+jobs:
+  build:
+    machine: true
+    steps:
+      - checkout
+      - run:
+          name: Apt update
+          command: 'echo "deb http://ftp.debian.org/debian stable main contrib non-free" >> /etc/apt/sources.list && apt-get update'
+      - run:
+          name: Docker swarm init
+          command: 'docker swarm init'
+      - run:
+          name: Npm install
+          command: 'npm install'
+      - run:
+          name: Generate files
+          command: 'bin/e2e generate -n test1 -c 3'
+      - run:
+          name: Make scripts executable
+          command: 'sudo chmod +x dist/test1/docker*'
+      - run:
+          name: Docker init and start
+          command: 'cd dist/test1 && ./docker-init.sh && ./docker-start.sh && cd ../..'
+      - run:
+          name: Run tests
+          command: 'bin/e2e run-tests -n test1 -s scenario1'
+      - run:
+          name: Output results
+          command: 'tail --lines 2000 dist/test1/node0/output.log'
+
+workflows:
+  version: 2
+  build_and_test:
+    jobs:
+      - build

@@ -11,7 +11,10 @@ jobs:
             nvm install 10
       - run:
           name: Check nodejs version
-          command: 'nvm use 10 && node --version'
+          command: |
+            source ~/.bashrc
+            nvm use 10
+            node --version
       - run:
           name: Docker swarm init
           command: 'docker swarm init'
@@ -20,7 +23,11 @@ jobs:
           command: 'npm install'
       - run:
           name: Generate files
-          command: 'node --version && bin/e2e generate -n test1 -c 3'
+          command: |
+            source ~/.bashrc
+            nvm use 10
+            node --version
+            bin/e2e generate -n test1 -c 3
       - run:
           name: Make scripts executable
           command: 'sudo chmod +x dist/test1/docker*'
@@ -29,7 +36,11 @@ jobs:
           command: 'cd dist/test1 && ./docker-init.sh && ./docker-start.sh && cd ../..'
       - run:
           name: Run tests
-          command: 'bin/e2e run-tests -n test1 -s scenario1'
+          command: |
+            source ~/.bashrc
+            nvm use 10
+            node --version
+            bin/e2e run-tests -n test1 -s scenario1
       - run:
           name: Output results
           command: 'tail --lines 2000 dist/test1/node0/output.log'

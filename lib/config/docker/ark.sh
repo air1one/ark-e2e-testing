@@ -1,7 +1,4 @@
-echo "Starting ark --network-start" >> output.log
-cd packages/core
-ls -l ./ >> ../../output.log
-ls -l ./bin >> ../../output.log
-node bin/ark start --config lib/config/e2enet --network e2enet >> ../../output.log
-echo "Started ark --network-start" >> ../../output.log
-cd ../..
+echo "Starting ark" >> output.log
+ls -l ./ >> output.log
+node ark.js >> output.log
+echo "Started ark" >> output.log

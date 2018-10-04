@@ -2,8 +2,11 @@ version: 2
 jobs:
   build:
     machine: true
-    steps:
+    steps: 
       - checkout
+      - run:
+          name: nodejs version 10
+          command: 'nvm install 10'
       - run:
           name: Docker swarm init
           command: 'docker swarm init'

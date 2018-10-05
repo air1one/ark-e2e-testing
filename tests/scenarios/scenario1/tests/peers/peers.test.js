@@ -10,9 +10,6 @@ describe('API 2.0 - Peers', () => {
       
       const peers = response.data.data
       expect(peers.length).toBeGreaterThanOrEqual(2)
-
-      const peerNode1 = peers.find((peer) => peer.ip === 'node1')
-      expect(peerNode1).toBeDefined()
     })
   })
 })

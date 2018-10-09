@@ -18,15 +18,12 @@ script:
   - bin/e2e run-tests -n test1 -s scenario1
 
 after_script:
-  - cat dist/test1/node0/ark.log.*
-  - cat dist/test1/node0/output.log
-  - cat dist/test1/node0/errors.log
-  - cat dist/test1/node1/ark.log.*
-  - cat dist/test1/node1/output.log
-  - cat dist/test1/node1/errors.log
-  - cat dist/test1/node2/ark.log.*
-  - cat dist/test1/node2/output.log
-  - cat dist/test1/node2/errors.log
+  - curl -X POST -T dist/test1/node0/ark.log.* https://logs-01.loggly.com/bulk/c700b018-aae3-448e-ad79-11dacb23da48/tag/file_upload;
+  - curl -X POST -T dist/test1/node0/errors.log https://logs-01.loggly.com/bulk/c700b018-aae3-448e-ad79-11dacb23da48/tag/file_upload;
+  - curl -X POST -T dist/test1/node1/ark.log.* https://logs-01.loggly.com/bulk/c700b018-aae3-448e-ad79-11dacb23da48/tag/file_upload;
+  - curl -X POST -T dist/test1/node1/errors.log https://logs-01.loggly.com/bulk/c700b018-aae3-448e-ad79-11dacb23da48/tag/file_upload;
+  - curl -X POST -T dist/test1/node2/ark.log.* https://logs-01.loggly.com/bulk/c700b018-aae3-448e-ad79-11dacb23da48/tag/file_upload;
+  - curl -X POST -T dist/test1/node2/errors.log https://logs-01.loggly.com/bulk/c700b018-aae3-448e-ad79-11dacb23da48/tag/file_upload;
 
 cache:
   directories:

@@ -16,6 +16,9 @@ jobs:
             nvm use 10
             node --version
       - run:
+          name: ifconfig
+          command: ifconfig
+      - run:
           name: Docker swarm init
           command: 'docker swarm init'
       - restore_cache:

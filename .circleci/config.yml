@@ -16,9 +16,6 @@ jobs:
             nvm use 10
             node --version
       - run:
-          name: ifconfig
-          command: ifconfig
-      - run:
           name: Docker swarm init
           command: 'docker swarm init'
       - restore_cache:
@@ -36,7 +33,7 @@ jobs:
             source ~/.bashrc
             nvm use 10
             node --version
-            bin/e2e generate -n e2enet -c 3
+            bin/e2e generate -n e2enet -c 5
       - run:
           name: Make scripts executable
           command: 'sudo chmod +x dist/e2enet/docker*'
@@ -65,6 +62,16 @@ jobs:
           command: |
             cat dist/e2enet/node2/output.log
             cat dist/e2enet/node2/errors.log
+      - run:
+          name: Output results - node3
+          command: |
+            cat dist/e2enet/node3/output.log
+            cat dist/e2enet/node3/errors.log
+      - run:
+          name: Output results - node4
+          command: |
+            cat dist/e2enet/node4/output.log
+            cat dist/e2enet/node4/errors.log
 
 workflows:
   version: 2

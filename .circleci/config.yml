@@ -27,25 +27,35 @@ jobs:
             source ~/.bashrc
             nvm use 10
             node --version
-            bin/e2e generate -n test1 -c 3
+            bin/e2e generate -n e2enet -c 3
       - run:
           name: Make scripts executable
-          command: 'sudo chmod +x dist/test1/docker*'
+          command: 'sudo chmod +x dist/e2enet/docker*'
       - run:
           name: Docker init and start
-          command: 'cd dist/test1 && ./docker-init.sh && ./docker-start.sh && cd ../..'
+          command: 'cd dist/e2enet && ./docker-init.sh && ./docker-start.sh && cd ../..'
       - run:
           name: Run tests
           command: |
             source ~/.bashrc
             nvm use 10
             node --version
-            bin/e2e run-tests -n test1 -s scenario1
+            bin/e2e run-tests -n e2enet -s scenario1
       - run:
-          name: Output results
+          name: Output results - node0
           command: |
-            tail --lines 2000 dist/test1/node0/output.log
-            tail --lines 2000 dist/test1/node0/errors.log
+            cat dist/e2enet/node0/output.log
+            cat dist/e2enet/node0/errors.log
+      - run:
+          name: Output results - node1
+          command: |
+            cat dist/e2enet/node1/output.log
+            cat dist/e2enet/node1/errors.log
+      - run:
+          name: Output results - node2
+          command: |
+            cat dist/e2enet/node2/output.log
+            cat dist/e2enet/node2/errors.log
 
 workflows:
   version: 2

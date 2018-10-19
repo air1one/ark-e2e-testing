@@ -1,30 +1,20 @@
 module.exports = {
-  '@arkecosystem/core-storage': {},
   '@arkecosystem/core-event-emitter': {},
   '@arkecosystem/core-config': {},
-  '@arkecosystem/core-logger': {},
   '@arkecosystem/core-logger-winston': {
     transports: {
       console: {
         options: {
-          colorize: true,
           level: process.env.ARK_LOG_LEVEL || 'debug'
         }
       },
       dailyRotate: {
         options: {
-          filename: process.env.ARK_LOG_FILE || `${process.env.ARK_PATH_DATA}/logs/core/${process.env.ARK_NETWORK_NAME}/%DATE%.log`,
-          datePattern: 'YYYY-MM-DD',
           level: process.env.ARK_LOG_LEVEL || 'debug',
-          zippedArchive: true,
-          maxSize: '100m',
-          maxFiles: '10'
+          filename: process.env.ARK_LOG_FILE || `${process.env.ARK_PATH_DATA}/logs/core/${process.env.ARK_NETWORK_NAME}/current.log`
         }
       }
     }
-  },
-  '@arkecosystem/core-database': {
-    snapshots: `${process.env.ARK_PATH_DATA}/snapshots/${process.env.ARK_NETWORK_NAME}`
   },
   '@arkecosystem/core-database-postgres': {
     connection: {
@@ -33,25 +23,16 @@ module.exports = {
       database: process.env.ARK_DB_DATABASE || `ark_testnet`,
       user: process.env.ARK_DB_USERNAME || 'ark',
       password: process.env.ARK_DB_PASSWORD || 'password'
-    },
-    redis: {
-      host: 'redis',
-      port: process.env.ARK_REDIS_PORT || 6379
     }
   },
-  '@arkecosystem/core-transaction-pool': {},
-  '@arkecosystem/core-transaction-pool-redis': {
-    enabled: !process.env.ARK_TRANSACTION_POOL_DISABLED,
-    key: 'ark-testnet',
+  '@arkecosystem/core-transaction-pool-mem': {
+    enabled: true,
+    storage: `${process.env.ARK_PATH_DATA}/database/transaction-pool-${process.env.ARK_NETWORK_NAME}.sqlite`,
     maxTransactionsPerSender: process.env.ARK_TRANSACTION_POOL_MAX_PER_SENDER || 300,
     whitelist: [],
     allowedSenders: [],
     maxTransactionsPerRequest: 200,
-    maxTransactionAge: 21600,
-    redis: {
-      host: 'redis',
-      port: process.env.ARK_REDIS_PORT || 6379
-    }
+    maxTransactionAge: 21600
   },
   '@arkecosystem/core-p2p': {
     host: process.env.ARK_P2P_HOST || '0.0.0.0',

@@ -18,9 +18,15 @@ jobs:
       - run:
           name: Docker swarm init
           command: 'docker swarm init'
+      - restore_cache:
+          key: ark-e2e-{{ checksum "package.json" }}-1
       - run:
           name: Npm install
           command: 'npm install'
+      - save_cache:
+          key: ark-e2e-{{ checksum "package.json" }}-1
+          paths:
+            -  ./node_modules
       - run:
           name: Generate files
           command: |

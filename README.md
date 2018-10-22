@@ -1,130 +1,111 @@
-# Ark Core e2e Testing : Proof of Concept
+# Ark Core End-to-end Testing
 
 ## Introduction
 
-Ark Core code is well-covered by unit tests, which is good to automatically identify bugs introduced by new code or refactoring.
+This project enables writing and running end-to-end tests on Ark core (v2).
 
-But unit tests are limited to "simple" test cases. If we want to test how the Ark Core network behaves in the real-world, we need integration / end-to-end testing. This can be manual (devnet) or/and automated.
+## Install and run
 
-This Proof-of-Concept describes a possible solution to enable automated end-to-end testing.
+Install the project dependencies :
 
-## Architecture
+`npm install`
 
-### Docker
+Now to run the tests locally, you need to have Docker installed. Then, run this command to initialize docker swarm feature :
 
-To be able to test the network in a real-world environment, we need to generate a number of nodes and make them interact with each other.
+`docker swarm init`
 
-Here is a diagram showing how we leverage Docker *stacks* and user-defined *overlay networks* to have N independent nodes (each one has his own redis and postgres container) with a different IP assigned, interacting through standard ports (4000 / 4003), allowing to run a full network on one machine.
+You can now run the configured tests like this :
 
-![Docker diagram](img/docker-architecture.png)
+    bin/e2e generate -n e2enet -c 3
+    sudo chmod +x dist/e2enet/docker*
+    cd dist/e2enet && ./docker-init.sh && ./docker-start.sh && cd ../..
+    bin/e2e run-tests -n e2enet -s scenario1
 
-Now that we have defined this architecture, we need to provide a way to generate it and launch tests on it.
+This will generate the configured network `e2enet` with 3 nodes and run the tests defined in `scenario1`. (it can take some time depending on your machine resources)
 
-### NodeJS app
+## Create new tests
 
-The NodeJS app takes care of : 
+### Structure of tests
 
- - Generating and launching a network based on a user-defined configuration
- - Running a scenario (tests and actions) on the network
+To see the existing tests or create new tests, have a look at the `tests` folder. You will find 2 sub-folders : `networks` and `scenarios`.
 
-Here is the app structure :
+We will just look at the `scenarios` sub-folder as we don't want to set up a new network, we already have the default `e2enet` which we will use.
 
-- **/bin** : Entry point for command-line interface.
-- **/lib** : App code
- - **/lib/config** : General configuration (currently only docker config).
- - **/tests/networks** : Networks configuration (genesis block, peers, ...). Each subfolder corresponds to a configured network.
- - **/tests/scenarios** : scenarios configuration (actions and tests to execute on the network). Each subfolder corresponds to a scenario.
- - **/dist** : Where the network is generated
+    scenarios / scenario1 / config.js
+    scenarios / scenario1 / doublespend1
 
-There are two command-line endpoints :
+So we find our `scenario1` that we executed before. It contains one file for configuration, and (currently) one sub-folder named `doublespend1` which contains one complete test case for double spending.
 
- - `bin/e2e generate -n test1 -c 3` To generate a network with the configured network *test1* and 3 nodes.
- - `bin/e2e run-tests -n test1 -s scenario1` To run the configured *scenario1* on network *test1* .
+Let's first look at `config.js` :
 
-#### Generating the network
-
-So what is `bin/e2e generate -n test1 -c 3` really doing ?
-
-It uses the *test1* configuration in **/tests/networks** to generate the network in the **/dist** folder : for each node wanted (here 3 nodes), it will clone the Core repository into a specific folder.
-
-If we run the command, this is the structure we would get inside **/dist** :
-
- - **/dist/test1** : Root folder for generated network, contains shell scripts and nodes subfolders
- - **/dist/test1/node0** : Core repository with *test1* network configured and specific config for node0
- - **/dist/test1/node1** : same with config for node1
- - **/dist/test1/node2** : same with config for node2
-
-Now to launch the network we would only need to :
-
-    ./docker-init.sh && ./docker-start.sh
-
-These scripts take care of docker configuring / building and launching the nodes (with docker stack deploy).
-
-#### Running the scenario
-
-`bin/e2e run-tests -n test1 -s scenario1` will inspect what you configured inside **/tests/scenarios/scenario1/config.js**. Here is an example :
-
-    'use strict'
-    
-    module.exports = {
-        events: {
-            newBlock: {
-                10: { tests: ['node/node.test.js', 'peers/peers.test.js'] },
-                12: { actions: ['network/rm-stack-node1.js'] },
-                17: { tests: ['peers/peers.test.js'] }
-            }
-        }
+    module.exports  = {
+      network: 'e2enet',
+      enabledTests: [
+        'doublespend1'
+      ]
     }
 
- We are here defining some tests and actions to execute on specific blocks. The engine will pick this up and execute them when the block height matches.
+Pretty straightforward : the network on which we want to execute the scenario, and the test cases we want to run on it.
 
-Let's have a look at the test **node/node.test.js** (inside */tests/scenarios/scenario1/tests/*):
+A test case typically contains some actions to be executed on the network (transactions for example), and some tests to check that the behavior is correct. Let's have a look at the `doublespend1` folder :
 
-    'use strict'
-    
-    const utils = require('../../../utils')
-    
-    describe('API 2.0 - Node', () => {
-      describe('GET /node/status', () => {
-        it('should be alive', async () => {
-          const response = await utils.request('GET', 'node/status')
-          utils.expectSuccessful(response)
-        })
-      })
-    })
+    0.transfer-new-wallet.action.js
+    1.doublespend.action.js
+    2.check-tx.test.js
+    config.js
+    utils.js
 
-Pretty straightforward 😀
+We can notice a few things here :
 
-The tests are executed with Jest using the Jest library (runCLI method), the results can be displayed or stored in a JSON file. 
+- The test case steps are prefixed by a number for clarity
+- The *actions* steps are suffixed by `action.js` and the *test* steps are suffixed by `.test.js`
+- There is a configuration file `config.js` and a helper file `utils.js`
 
-### Travis
+`config.js` defines the steps to be run to execute the test case :
 
-This could be integrated in a Travis workflow, for each commit or at a regular interval (every night for example).
+    module.exports  = {
+      events: {
+        newBlock: {
+          8: [ '0.transfer-new-wallet.action' ],
+          11: [ '1.doublespend.action' ],
+          14: [ '2.check-tx.test' ]
+        }
+      }
+    }
 
-## Recap : what have we done ?
+The steps are plugged into the network's events : right now the only events available are *new block* events. Here we can see at block 8 we transfer some coins to a new wallet, then at block 11 we perform a *double spend* action, finally at block 14 we check the last transactions (to see if the double spend was accepted by the network or not).
 
-We managed to automate end-to-end testing running a predefined scenario (actions and tests) on a generated network.
+To create *action* files, we just export (`module.export`) a function containing what we want to execute.
 
-Right now, it is as simple as :
+To create *test* files, we write Jest tests as we would do with unit tests (`describe` etc).
 
-    bin/e2e generate -n test1 -c 3
-    cd dist/test1 && ./docker-init.sh && ./docker-start.sh && cd ../..
-    bin/e2e run-tests -n test1 -s scenario1
+You can have a look at `doublespend1` folder to have examples of actions and tests.
 
-So we could integrate it in a Travis workflow.
+### Interact with the network through API
 
-## Going further
+To perform some actions (like creating a new transaction), we want to send requests to one node's API.
 
-### Use multiple machines
+The nodes between themselves interact through classic 4000 / 4003 ports. But externally their ports are mapped so in our test we interact with them differently :
 
-This PoC runs the generated network on only 1 machine, but we could use Docker *Swarm* to allow distributing the generated nodes on multiple machines.
+- For API calls we request localhost on port ( 4300 + node number ) to access a specific node (node numbers start from zero, so node0 will be requested on port 4300, node1 on port 4301...)
+- For P2P calls we request localhost on port ( 4000 + node number )
 
-### End-to-end testing on wallets, explorer...
+### Guidelines for writing tests
 
-We could apply the same method to have end-to-end testing on related applications (desktop / mobile wallet, explorer...).
+Here are some tips :
 
-## Additional notes
+- Create one folder for one coherent test case
+- Initialize what you need in your test case, don't re-use something from another test case : create your own wallets (transfer coins from genesis), your own transactions etc.
+- Use an `utils.js` file if you need, also have a look at `utils.js` in the `networks` folder and in the `lib` folder
 
-### Decoupling network configuration and scenarios
+## CircleCI
 
-I started with the idea that the network configuration should be independent from the tests and actions (so that we could choose one network and play any scenario on it). But going through I think it makes more sense to have them linked because test results can depend on network configuration (for example minimumNetworkReach).
+The end-to-end tests are configured to run on CircleCI every day : to see which network and scenarios are configured, you can have a look at `.circleci/config.yml`file.
+
+## Technical details about this project
+
+To understand how this end-to-end testing framework works behind the scenes, have a look at [TechnicalDetails.md](TechnicalDetails.md).
+
+## Suggestions, improvements
+
+Please create new issues, or contact me if you want to discuss about it.
